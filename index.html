@@ -1,133 +1,141 @@
-<!doctype html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Curl.ID AI</title>
-
-  <!-- Teachable Machine + TFJS -->
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
-
-  <style>
-    body{
-      font-family: Arial, sans-serif;
-      background:#8ecae6;
-      margin:0;
-      padding:40px 16px;
-      display:flex;
-      justify-content:center;
-    }
-    .card{
-      background:#fff;
-      width:min(760px, 100%);
-      border-radius:24px;
-      padding:28px;
-      box-shadow:0 8px 20px rgba(0,0,0,.12);
-      text-align:center;
-    }
-    h1{ margin:0 0 10px; }
-    .sub{ margin:0 0 18px; opacity:.8; }
-    .row{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
-    input[type=file]{ padding:10px; }
-    button{
-      background:#5a4635;
-      color:#fff;
-      border:none;
-      padding:12px 18px;
-      border-radius:12px;
-      cursor:pointer;
-      font-weight:700;
-    }
-    button:disabled{ opacity:.55; cursor:not-allowed; }
-    .result{
-      margin-top:18px;
-      font-size:18px;
-      font-weight:700;
-    }
-    .small{
-      margin-top:10px;
-      font-size:13px;
-      opacity:.7;
-      word-break:break-all;
-    }
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.3">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>Curl.ID AI</h1>
-    <p class="sub">Upload a photo and get your hair type (Straight / Wavy / Curly / Coily).</p>
-
-    <div class="row">
-      <input id="file" type="file" accept="image/*" />
-      <button id="analyze" disabled>Analyze</button>
-    </div>
-
-    <div class="result" id="result"></div>
-    <div class="small" id="debug"></div>
-  </div>
-
-  <script>
-    let model, maxPredictions;
-
-    // These MUST be in the same folder as index.html (repo root)
-    const MODEL_URL = "./model.json";
-    const METADATA_URL = "./metadata.json";
-
-    const fileInput = document.getElementById("file");
-    const analyzeBtn = document.getElementById("analyze");
-    const resultEl = document.getElementById("result");
-    const debugEl = document.getElementById("debug");
-
-    function setDebug(msg){ debugEl.textContent = msg; }
-
-    async function loadModel(){
-      setDebug("Loading model…");
-      model = await tmImage.load(MODEL_URL, METADATA_URL);
-      maxPredictions = model.getTotalClasses();
-      setDebug("Model loaded ✅");
-      analyzeBtn.disabled = false;
-    }
-
-    fileInput.addEventListener("change", async () => {
-      resultEl.textContent = "";
-      analyzeBtn.disabled = true;
-
-      if (!fileInput.files || !fileInput.files[0]) return;
-
-      try {
-        if (!model) await loadModel();
-        analyzeBtn.disabled = false;
-      } catch (err) {
-        console.error(err);
-        resultEl.textContent = "❌ Model failed to load. Check if model.json/weights.bin are accessible on GitHub Pages.";
-        setDebug(String(err));
-      }
-    });
-
-    analyzeBtn.addEventListener("click", async () => {
-      const file = fileInput.files && fileInput.files[0];
-      if (!file) { resultEl.textContent = "Pick an image first."; return; }
-
-      try {
-        const img = new Image();
-        img.src = URL.createObjectURL(file);
-        await new Promise(res => img.onload = res);
-
-        const prediction = await model.predict(img, false);
-
-        prediction.sort((a,b)=>b.probability-a.probability);
-        const top = prediction[0];
-
-        const pct = Math.round(top.probability * 100);
-        resultEl.textContent = `Your Hair Type: ${top.className}  —  Confidence: ${pct}%`;
-        setDebug("");
-      } catch (err) {
-        console.error(err);
-        resultEl.textContent = "❌ Something went wrong predicting.";
-        setDebug(String(err));
-      }
-    });
-  </script>
+<p class="p1">&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>// 1) Product + "why" list for each hair family</p>
+<p class="p1"><span class="Apple-converted-space">  </span>const PRODUCT_RECS = {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>"Straight (1A–1C)": [</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>name: "Lightweight Volumizing Shampoo",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>why: "Straight hair can get oily/flat fast—light formulas clean without weighing it down."</p>
+<p class="p1"><span class="Apple-converted-space">      </span>},</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>name: "Dry Shampoo",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>why: "Absorbs oil at the roots to keep straight hair fresh between washes."</p>
+<p class="p1"><span class="Apple-converted-space">      </span>},</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>name: "Heat Protectant Spray",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>why: "Straight hair is often heat-styled; protectant helps prevent damage and split ends."</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>],</p>
+<p class="p1"><span class="Apple-converted-space">    </span>"Wavy (2A–2C)": [</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>name: "Light Curl Cream / Wave Enhancer",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>why: "Defines waves and reduces frizz without making hair crunchy or heavy."</p>
+<p class="p1"><span class="Apple-converted-space">      </span>},</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>name: "Leave-In Conditioner (lightweight)",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>why: "Adds moisture to fight frizz while keeping waves bouncy."</p>
+<p class="p1"><span class="Apple-converted-space">      </span>},</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>name: "Microfiber Towel / Cotton T-Shirt",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>why: "Less friction than a regular towel, so you get less frizz and better wave clumps."</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>],</p>
+<p class="p1"><span class="Apple-converted-space">    </span>"Curly (3A–3C)": [</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>name: "Curl Defining Cream",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>why: "Curly hair needs definition + moisture to keep curls shaped and less frizzy."</p>
+<p class="p1"><span class="Apple-converted-space">      </span>},</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>name: "Deep Conditioner / Hair Mask",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>why: "Curls dry out faster; deep conditioning helps softness, shine, and breakage control."</p>
+<p class="p1"><span class="Apple-converted-space">      </span>},</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>name: "Gel (medium hold)",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>why: "Creates a light ‘cast’ that locks in curl shape and helps curls last longer."</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>],</p>
+<p class="p1"><span class="Apple-converted-space">    </span>"Coily (4A–4C)": [</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>name: "Rich Leave-In Conditioner",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>why: "Coily hair needs more moisture; leave-in helps prevent dryness and shrinkage frizz."</p>
+<p class="p1"><span class="Apple-converted-space">      </span>},</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>name: "Hair Butter / Thick Cream",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>why: "Seals moisture and adds long-lasting softness for tighter curl patterns."</p>
+<p class="p1"><span class="Apple-converted-space">      </span>},</p>
+<p class="p1"><span class="Apple-converted-space">      </span>{</p>
+<p class="p1"><span class="Apple-converted-space">        </span>name: "Oil (jojoba/castor) for sealing",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>why: "Helps lock moisture in and reduces breakage at the ends."</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>]</p>
+<p class="p1"><span class="Apple-converted-space">  </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>// 2) Helper: map a curl subtype (like 2A or 4C) to a “hair family”</p>
+<p class="p1"><span class="Apple-converted-space">  </span>function hairFamilyFromType(type) {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const t = (type || "").toUpperCase().trim();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (t.startsWith("1")) return "Straight (1A–1C)";</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (t.startsWith("2")) return "Wavy (2A–2C)";</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (t.startsWith("3")) return "Curly (3A–3C)";</p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (t.startsWith("4")) return "Coily (4A–4C)";</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return null;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>// 3) Demo prediction (random) — later you can swap this for real AI model output</p>
+<p class="p1"><span class="Apple-converted-space">  </span>function demoPredictType() {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const types = ["1A","1B","1C","2A","2B","2C","3A","3B","3C","4A","4B","4C"];</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const pick = types[Math.floor(Math.random() * types.length)];</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const confidence = Math.floor(Math.random() * 16) + 85; // 85–100%</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return { type: pick, confidence };</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>// 4) Render results + product reasons</p>
+<p class="p1"><span class="Apple-converted-space">  </span>function analyze() {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const fileInput = document.getElementById("photo");</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const resultEl = document.getElementById("result");</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>if (!fileInput.files || fileInput.files.length === 0) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>resultEl.innerHTML = "Please upload a photo first 🙂";</p>
+<p class="p1"><span class="Apple-converted-space">      </span>return;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// DEMO prediction</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const { type, confidence } = demoPredictType();</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const family = hairFamilyFromType(type);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>const products = PRODUCT_RECS[family] || [];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Build HTML</p>
+<p class="p1"><span class="Apple-converted-space">    </span>let html = `</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div style="text-align:left; max-width:520px; margin: 0 auto;"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div style="text-align:center;"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div style="font-size:20px; font-weight:700;"&gt;Your Hair Type: ${type}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div style="margin-top:6px;"&gt;Confidence: ${confidence}%&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div style="margin-top:10px; font-weight:700;"&gt;Category: ${family}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;hr style="margin:18px 0; opacity:.25;"&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div style="font-weight:700; margin-bottom:8px;"&gt;Recommended Products (and why):&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;ol style="padding-left:18px; margin:0;"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>${products.map(p =&gt; `</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;li style="margin-bottom:10px;"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div style="font-weight:700;"&gt;${p.name}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">              </span>&lt;div style="opacity:.9; font-size:14px;"&gt;${p.why}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/li&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>`).join("")}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/ol&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div style="margin-top:14px; font-size:13px; opacity:.85;"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>Tip: For best results, take the photo in bright natural light and show the full curl pattern.</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>`;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>resultEl.innerHTML = html;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>}</p>
+<p class="p1">&lt;/script&gt;</p>
 </body>
 </html>
