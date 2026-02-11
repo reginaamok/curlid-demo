@@ -1,61 +1,81 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Curl.ID AI Demo</title>
-<style>
-body {
-  font-family: Arial, sans-serif;
-  background-color: #8ecae6;
-  text-align: center;
-  padding: 40px;
-}
-.container {
-  background: white;
-  padding: 30px;
-  border-radius: 20px;
-  max-width: 600px;
-  margin: auto;
-}
-button {
-  padding: 10px 20px;
-  background-color: #5a4635;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  margin-top: 15px;
-}
-.result {
-  margin-top: 20px;
-  font-size: 20px;
-  font-weight: bold;
-}
-</style>
+  <title>Curl.ID AI</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+  <style>
+    body {
+      font-family: Arial;
+      background: #8ecae6;
+      text-align: center;
+      padding: 40px;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+    button {
+      padding: 10px 20px;
+      background: #5a4635;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      margin-top: 15px;
+    }
+  </style>
 </head>
-
 <body>
 
 <div class="container">
   <h1>Curl.ID AI</h1>
-  <p>Upload a photo to detect your curl type.</p>
-  
-  <input type="file" id="photo">
+  <input type="file" id="imageUpload">
   <br>
-  <button onclick="analyze()">Analyze</button>
-
-  <div class="result" id="result"></div>
+  <button onclick="predict()">Analyze</button>
+  <h2 id="result"></h2>
 </div>
 
 <script>
-function analyze() {
-  const types = ["2A", "2B", "2C", "3A", "3B", "3C", "4A", "4B", "4C"];
-  const randomType = types[Math.floor(Math.random() * types.length)];
-  const confidence = Math.floor(Math.random() * 20) + 80;
+  const URL = "./";
 
-  document.getElementById("result").innerHTML =
-    "Your Curl Type: " + randomType +
-    "<br>Confidence: " + confidence + "%";
-}
+  let model, maxPredictions;
+
+  async function loadModel() {
+    const modelURL = URL + "model.json";
+    const metadataURL = URL + "metadata.json";
+    model = await tmImage.load(modelURL, metadataURL);
+    maxPredictions = model.getTotalClasses();
+  }
+
+  async function predict() {
+    if (!model) {
+      await loadModel();
+    }
+
+    const image = document.getElementById("imageUpload").files[0];
+    if (!image) {
+      document.getElementById("result").innerText = "Please upload an image first.";
+      return;
+    }
+
+    const img = document.createElement("img");
+    img.src = URL.createObjectURL(image);
+
+    img.onload = async function () {
+      const prediction = await model.predict(img);
+      prediction.sort((a, b) => b.probability - a.probability);
+
+      document.getElementById("result").innerText =
+        "Your Hair Type: " +
+        prediction[0].className +
+        " (" +
+        Math.round(prediction[0].probability * 100) +
+        "% confidence)";
+    };
+  }
 </script>
 
 </body>
