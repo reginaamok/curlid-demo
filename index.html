@@ -1,82 +1,133 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
 <head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Curl.ID AI</title>
+
+  <!-- Teachable Machine + TFJS -->
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+
   <style>
-    body {
-      font-family: Arial;
-      background: #8ecae6;
-      text-align: center;
-      padding: 40px;
+    body{
+      font-family: Arial, sans-serif;
+      background:#8ecae6;
+      margin:0;
+      padding:40px 16px;
+      display:flex;
+      justify-content:center;
     }
-    .container {
-      background: white;
-      padding: 30px;
-      border-radius: 20px;
-      max-width: 600px;
-      margin: auto;
+    .card{
+      background:#fff;
+      width:min(760px, 100%);
+      border-radius:24px;
+      padding:28px;
+      box-shadow:0 8px 20px rgba(0,0,0,.12);
+      text-align:center;
     }
-    button {
-      padding: 10px 20px;
-      background: #5a4635;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      margin-top: 15px;
+    h1{ margin:0 0 10px; }
+    .sub{ margin:0 0 18px; opacity:.8; }
+    .row{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+    input[type=file]{ padding:10px; }
+    button{
+      background:#5a4635;
+      color:#fff;
+      border:none;
+      padding:12px 18px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:700;
+    }
+    button:disabled{ opacity:.55; cursor:not-allowed; }
+    .result{
+      margin-top:18px;
+      font-size:18px;
+      font-weight:700;
+    }
+    .small{
+      margin-top:10px;
+      font-size:13px;
+      opacity:.7;
+      word-break:break-all;
     }
   </style>
 </head>
 <body>
+  <div class="card">
+    <h1>Curl.ID AI</h1>
+    <p class="sub">Upload a photo and get your hair type (Straight / Wavy / Curly / Coily).</p>
 
-<div class="container">
-  <h1>Curl.ID AI</h1>
-  <input type="file" id="imageUpload">
-  <br>
-  <button onclick="predict()">Analyze</button>
-  <h2 id="result"></h2>
-</div>
+    <div class="row">
+      <input id="file" type="file" accept="image/*" />
+      <button id="analyze" disabled>Analyze</button>
+    </div>
 
-<script>
-  const URL = "./";
+    <div class="result" id="result"></div>
+    <div class="small" id="debug"></div>
+  </div>
 
-  let model, maxPredictions;
+  <script>
+    let model, maxPredictions;
 
-  async function loadModel() {
-    const modelURL = URL + "model.json";
-    const metadataURL = URL + "metadata.json";
-    model = await tmImage.load(modelURL, metadataURL);
-    maxPredictions = model.getTotalClasses();
-  }
+    // These MUST be in the same folder as index.html (repo root)
+    const MODEL_URL = "./model.json";
+    const METADATA_URL = "./metadata.json";
 
-  async function predict() {
-    if (!model) {
-      await loadModel();
+    const fileInput = document.getElementById("file");
+    const analyzeBtn = document.getElementById("analyze");
+    const resultEl = document.getElementById("result");
+    const debugEl = document.getElementById("debug");
+
+    function setDebug(msg){ debugEl.textContent = msg; }
+
+    async function loadModel(){
+      setDebug("Loading model…");
+      model = await tmImage.load(MODEL_URL, METADATA_URL);
+      maxPredictions = model.getTotalClasses();
+      setDebug("Model loaded ✅");
+      analyzeBtn.disabled = false;
     }
 
-    const image = document.getElementById("imageUpload").files[0];
-    if (!image) {
-      document.getElementById("result").innerText = "Please upload an image first.";
-      return;
-    }
+    fileInput.addEventListener("change", async () => {
+      resultEl.textContent = "";
+      analyzeBtn.disabled = true;
 
-    const img = document.createElement("img");
-    img.src = URL.createObjectURL(image);
+      if (!fileInput.files || !fileInput.files[0]) return;
 
-    img.onload = async function () {
-      const prediction = await model.predict(img);
-      prediction.sort((a, b) => b.probability - a.probability);
+      try {
+        if (!model) await loadModel();
+        analyzeBtn.disabled = false;
+      } catch (err) {
+        console.error(err);
+        resultEl.textContent = "❌ Model failed to load. Check if model.json/weights.bin are accessible on GitHub Pages.";
+        setDebug(String(err));
+      }
+    });
 
-      document.getElementById("result").innerText =
-        "Your Hair Type: " +
-        prediction[0].className +
-        " (" +
-        Math.round(prediction[0].probability * 100) +
-        "% confidence)";
-    };
-  }
-</script>
+    analyzeBtn.addEventListener("click", async () => {
+      const file = fileInput.files && fileInput.files[0];
+      if (!file) { resultEl.textContent = "Pick an image first."; return; }
 
+      try {
+        const img = new Image();
+        img.src = URL.createObjectURL(file);
+        await new Promise(res => img.onload = res);
+
+        const prediction = await model.predict(img, false);
+
+        prediction.sort((a,b)=>b.probability-a.probability);
+        const top = prediction[0];
+
+        const pct = Math.round(top.probability * 100);
+        resultEl.textContent = `Your Hair Type: ${top.className}  —  Confidence: ${pct}%`;
+        setDebug("");
+      } catch (err) {
+        console.error(err);
+        resultEl.textContent = "❌ Something went wrong predicting.";
+        setDebug(String(err));
+      }
+    });
+  </script>
 </body>
 </html>
